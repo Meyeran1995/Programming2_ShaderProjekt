@@ -1,0 +1,24 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+RWStructuredBuffer<float3> _Positions;
+uint _Resolution;
+
+void SetPosition(uint3 id)
+{
+    if (id.x >= _Resolution || id.y >= _Resolution)
+    {
+        return;
+    }
+
+    float3 position = float3(id.x, 0, id.z);
+    position.xz *= _Resolution * 0.5f; // multiply by half the resolution to center
+    
+    _Positions[id.x + id.y * _Resolution] = position;
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    SetPosition(id);
+}
