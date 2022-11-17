@@ -11,7 +11,7 @@ void SetPosition(uint3 id)
         return;
     }
 
-    float3 position = float3(id.x, 0, id.z);
+    float3 position = float3(id.x, 0, id.y);
     position.xz *= _Resolution * 0.5f; // multiply by half the resolution to center
     
     _Positions[id.x + id.y * _Resolution] = position;
