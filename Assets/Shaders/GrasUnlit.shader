@@ -13,15 +13,15 @@ Shader "Unlit/GrasUnlit"
 
         Pass
         {
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
             #pragma target 4.5
 
-            #include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
-            fixed4 _Color;
+            half4 _Color;
             sampler2D _MainTex;
             float4 _MainTex_ST;
             
@@ -41,19 +41,20 @@ Shader "Unlit/GrasUnlit"
             
             v2f vert (appdata v, uint instanceID : SV_InstanceID)
             {
-                v2f o;
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.vertex = UnityObjectToClipPos(_Positions[instanceID]);
-                return o;
+                v2f output;
+                output.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                const float3 world = TransformObjectToWorld(v.vertex.xyz) + _Positions[instanceID];
+                output.vertex = TransformWorldToHClip(world);
+                return output;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            half4 frag (v2f i) : SV_Target
             {
-                fixed4 objectColor = tex2D(_MainTex, i.uv);
+                half4 objectColor = tex2D(_MainTex, i.uv);
 
                 return _Color * objectColor;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }
