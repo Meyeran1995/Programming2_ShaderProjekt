@@ -4,7 +4,6 @@ public static class QuadCreator
 {
    public static Mesh CreateQuad(float width = 1f, float height = 1f)
    {
-      //TODO: Can we add rotation here?
       var quad = new Mesh();
         
       var vertices = new[]
