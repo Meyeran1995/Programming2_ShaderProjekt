@@ -7,7 +7,7 @@ Shader "Unlit/GrasUnlit"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" }
         Cull Off
         Zwrite On
 
@@ -26,6 +26,8 @@ Shader "Unlit/GrasUnlit"
             float4 _MainTex_ST;
             
             StructuredBuffer<float3> _Positions;
+
+            float _Rotation;
             
             struct appdata
             {
@@ -38,21 +40,36 @@ Shader "Unlit/GrasUnlit"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
             };
+
+            float4 RotateAroundYInDegrees (float4 vertex, const float degrees)
+            {
+                const float angle = degrees * PI / 180.0;
+
+                float sine, cosine;
+                sincos(angle, sine, cosine); // replace for urp function
+
+                const float2x2 rotation_matrix = float2x2(cosine, -sine, sine, cosine);
+                return float4(mul(rotation_matrix, vertex.xz), vertex.yw).xzyw;
+            }
             
-            v2f vert (appdata v, uint instanceID : SV_InstanceID)
+            v2f vert (appdata v, const uint instance_id : SV_InstanceID)
             {
                 v2f output;
                 output.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                const float3 world = TransformObjectToWorld(v.vertex.xyz) + _Positions[instanceID];
-                output.vertex = TransformWorldToHClip(world);
+                
+                const float4 rotated_pos = RotateAroundYInDegrees(v.vertex, _Rotation);
+                const float3 world_pos = TransformObjectToWorld(rotated_pos) + _Positions[instance_id];
+
+                output.vertex = TransformWorldToHClip(world_pos);
                 return output;
             }
 
             half4 frag (v2f i) : SV_Target
             {
-                half4 objectColor = tex2D(_MainTex, i.uv);
+                const half4 object_color = tex2D(_MainTex, i.uv);
+                clip(-(0.5 - object_color.a)); // remove for urp function
 
-                return _Color * objectColor;
+                return _Color * object_color;
             }
             ENDHLSL
         }
