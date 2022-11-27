@@ -27,10 +27,10 @@ public static class QuadCreator
         
       var normals = new[]
       {
-         -Vector3.forward,
-         -Vector3.forward,
-         -Vector3.forward,
-         -Vector3.forward
+         Vector3.up, 
+         Vector3.up, 
+         Vector3.up, 
+         Vector3.up
       };
       
       quad.normals = normals;
