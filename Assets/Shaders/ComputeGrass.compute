@@ -5,6 +5,10 @@ RWStructuredBuffer<float3> _Positions;
 uint _Resolution;
 float _Density;
 
+Texture2D<float4> _HeightMap;
+SamplerState sampler_HeightMap;
+float _HeightMapDisplacementStrength;
+
 void SetPosition(uint3 id)
 {
     if (id.x >= _Resolution || id.y >= _Resolution)
@@ -14,7 +18,17 @@ void SetPosition(uint3 id)
 
     float3 position = float3(id.x, 0, id.y);
     position.xz -= _Resolution * 0.5f; // adjust by half the resolution to center
-    position.xz *= (1 / _Density);
+    position.xz *= 1 / _Density;
+
+    // convert position to texture space
+    float2 uv = position.xz;
+    uv = id.xy / _Density;
+    uv.xy /= _Resolution / _Density;
+
+    float4 displacement = _HeightMap.SampleLevel(sampler_HeightMap, uv, 0);
+
+    position.y += displacement.r * _HeightMapDisplacementStrength;
+    //position.y += displacement.r * _DisplacementStrength + 0.5f;
     
     _Positions[id.x + id.y * _Resolution] = position;
 }

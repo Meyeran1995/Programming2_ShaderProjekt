@@ -10,10 +10,13 @@ public class BillboardGras : MonoBehaviour
     [SerializeField, Min(0f)] private float quadWidth, quadHeight;
     [SerializeField, Min(0f)] private float density;
     [SerializeField, Range(1, 6)] private int numberOfQuads;
+    [SerializeField, Min(0f)] private float displacementStrength;
+    
 
     [Header("References")]
     [SerializeField] private ComputeShader grasPositionCompute;
     [SerializeField] private Material grassMaterial;
+    [SerializeField] private Terrain terrain;
     
     [Header("Debug")]
     [SerializeField] private List<Material> materials;
@@ -29,18 +32,21 @@ public class BillboardGras : MonoBehaviour
     private static readonly int DensityId = Shader.PropertyToID("_Density");
     private static readonly int ResolutionId = Shader.PropertyToID("_Resolution");
     private static readonly int RotationId = Shader.PropertyToID("_Rotation");
+    private static readonly int HeightMapId = Shader.PropertyToID("_HeightMap");
+    private static readonly int HeightMapDisplacementStrengthId = Shader.PropertyToID("_HeightMapDisplacementStrength");
 
     private const int Max_resolution = 1000;
 
     private int resolutionCache, numberOfQuadsCache;
     private Vector2 quadCache;
-    private float densityCache;
+    private float densityCache, displacementCache;
 
     private void Awake()
     {
         resolutionCache = resolution;
         quadCache = new Vector2(quadWidth, quadHeight);
         densityCache = density;
+        displacementCache = displacementStrength;
 
         numberOfQuadsCache = numberOfQuads;
         rotationIncrement = 360f / numberOfQuads / 2f;
@@ -93,7 +99,10 @@ public class BillboardGras : MonoBehaviour
         grasPositionCompute.SetInt(ResolutionId, resolution);
         grasPositionCompute.SetFloat(DensityId, density);
         grasPositionCompute.SetBuffer(0, PositionsId, positionsBuffer);
-
+        
+        grasPositionCompute.SetFloat(HeightMapDisplacementStrengthId, displacementStrength);
+        grasPositionCompute.SetTexture(0, HeightMapId, terrain.terrainData.heightmapTexture);
+        
         grasPositionCompute.Dispatch(0, groups, groups, 1);
         
         UpdateBounds();
@@ -149,6 +158,13 @@ public class BillboardGras : MonoBehaviour
         if (densityCache > density || densityCache < density)
         {
             densityCache = density;
+            UpdateComputeBuffer();
+            return;
+        }
+        
+        if (displacementCache > displacementStrength || displacementCache < displacementStrength)
+        {
+            displacementCache = displacementStrength;
             UpdateComputeBuffer();
             return;
         }

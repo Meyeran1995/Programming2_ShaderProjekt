@@ -390,8 +390,10 @@ MonoBehaviour:
   quadHeight: 1
   density: 1
   numberOfQuads: 4
+  displacementStrength: 1200
   grasPositionCompute: {fileID: 7200000, guid: 6cec460d5c0701041adaa7f077f08f51, type: 3}
   grassMaterial: {fileID: 2100000, guid: 409c64e2652730d4f8abe6ae1da45d89, type: 2}
+  terrain: {fileID: 1043932047}
   materials: []
 --- !u!4 &709688940
 Transform:
@@ -436,7 +438,7 @@ TerrainCollider:
   m_Material: {fileID: 0}
   m_Enabled: 1
   m_TerrainData: {fileID: 15600000, guid: f8d2cf3b5c388bc42ab7ff56d2e9bf52, type: 2}
-  m_EnableTreeColliders: 1
+  m_EnableTreeColliders: 0
 --- !u!218 &1043932047
 Terrain:
   m_ObjectHideFlags: 0
