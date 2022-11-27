@@ -32,7 +32,6 @@ Shader "Unlit/GrasUnlit"
             StructuredBuffer<float3> _Positions;
 
             float _Rotation;
-            float _HalfQuadWidth;
             
             struct appdata
             {
@@ -63,10 +62,7 @@ Shader "Unlit/GrasUnlit"
                 v2f output;
                 output.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
-                float4 offset_pos = v.vertex;
-                offset_pos.x -= _HalfQuadWidth;
-
-                const float4 rotated_pos = RotateAroundYInDegrees(offset_pos, _Rotation);
+                const float4 rotated_pos = RotateAroundYInDegrees(v.vertex, _Rotation);
                 const float3 world_pos = TransformObjectToWorld(rotated_pos) + _Positions[instance_id];
 
                 output.vertex = TransformWorldToHClip(world_pos);

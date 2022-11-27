@@ -4,14 +4,15 @@ public static class QuadCreator
 {
    public static Mesh CreateQuad(float width = 1f, float height = 1f)
    {
+      float half = width / 2f;
       var quad = new Mesh();
         
       var vertices = new[]
       {
-         new Vector3(0, 0, 0),
-         new Vector3(width, 0, 0),
-         new Vector3(0, height, 0),
-         new Vector3(width, height, 0)
+         new Vector3(-half, 0, 0),
+         new Vector3(half, 0, 0),
+         new Vector3(-half, height, 0),
+         new Vector3(half, height, 0)
       };
         
       quad.vertices = vertices;
