@@ -3,6 +3,7 @@ Shader "Unlit/GrasUnlit"
     Properties
     {
         _MainTex ("Main texture", 2D) = "white" {}
+        _HeightMap ("Height Map", 2D) = "black" {}
         _Color ("Color", COLOR) = (1 , 1 , 1, 1)
     }
     SubShader
@@ -22,12 +23,16 @@ Shader "Unlit/GrasUnlit"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             half4 _Color;
+            
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            
+            sampler2D _HeightMap;
             
             StructuredBuffer<float3> _Positions;
 
             float _Rotation;
+            float _HalfQuadWidth;
             
             struct appdata
             {
@@ -46,9 +51,10 @@ Shader "Unlit/GrasUnlit"
                 const float angle = degrees * PI / 180.0;
 
                 float sine, cosine;
-                sincos(angle, sine, cosine); // replace for urp function
-
+                sincos(angle, sine, cosine);
+                
                 const float2x2 rotation_matrix = float2x2(cosine, -sine, sine, cosine);
+                
                 return float4(mul(rotation_matrix, vertex.xz), vertex.yw).xzyw;
             }
             
@@ -56,8 +62,11 @@ Shader "Unlit/GrasUnlit"
             {
                 v2f output;
                 output.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                
-                const float4 rotated_pos = RotateAroundYInDegrees(v.vertex, _Rotation);
+
+                float4 offset_pos = v.vertex;
+                offset_pos.x -= _HalfQuadWidth;
+
+                const float4 rotated_pos = RotateAroundYInDegrees(offset_pos, _Rotation);
                 const float3 world_pos = TransformObjectToWorld(rotated_pos) + _Positions[instance_id];
 
                 output.vertex = TransformWorldToHClip(world_pos);
@@ -67,8 +76,8 @@ Shader "Unlit/GrasUnlit"
             half4 frag (v2f i) : SV_Target
             {
                 const half4 object_color = tex2D(_MainTex, i.uv);
-                clip(-(0.5 - object_color.a)); // remove for urp function
-
+                clip(-(0.5 - object_color.a));
+                
                 return _Color * object_color;
             }
             ENDHLSL

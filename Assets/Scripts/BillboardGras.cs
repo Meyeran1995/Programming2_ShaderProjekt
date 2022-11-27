@@ -22,12 +22,13 @@ public class BillboardGras : MonoBehaviour
     private int resolutionSquared;
     private int groups;
     private float rotationIncrement;
+    private float halfQuadWidth;
     private List<Material> materials;
-    
-    
+
     private static readonly int PositionsId = Shader.PropertyToID("_Positions");
     private static readonly int DensityId = Shader.PropertyToID("_Density");
     private static readonly int ResolutionId = Shader.PropertyToID("_Resolution");
+    private static readonly int HalfQuadWidthId = Shader.PropertyToID("_HalfQuadWidth");
     private static readonly int RotationId = Shader.PropertyToID("_Rotation");
 
     private const int Max_resolution = 1000;
@@ -43,11 +44,10 @@ public class BillboardGras : MonoBehaviour
         densityCache = density;
 
         numberOfQuadsCache = numberOfQuads;
-        rotationIncrement = 360f / numberOfQuads;
-
-        materials = new List<Material>(numberOfQuads);
-
-        materials.Add(grassMaterial);
+        rotationIncrement = 360f / numberOfQuads / 2f;
+        halfQuadWidth = quadWidth / 2f;
+        
+        materials = new List<Material>(numberOfQuads) { grassMaterial };
 
         for (int i = 1; i < numberOfQuads; i++)
         {
@@ -103,7 +103,7 @@ public class BillboardGras : MonoBehaviour
         grasPositionCompute.SetBuffer(0, PositionsId, positionsBuffer);
 
         grasPositionCompute.Dispatch(0, groups, groups, 1);
-        
+
         UpdateMaterial(grassMaterial, 0f);
 
         if(numberOfQuads == 1) return;
@@ -120,6 +120,7 @@ public class BillboardGras : MonoBehaviour
     private void UpdateMaterial(Material material, float angle)
     {
         material.SetFloat(RotationId, angle);
+        material.SetFloat(HalfQuadWidthId, halfQuadWidth);
         material.SetBuffer(PositionsId, positionsBuffer);
     }
 
@@ -134,11 +135,20 @@ public class BillboardGras : MonoBehaviour
         args[2] = quad.GetIndexStart(0);
         args[3] = quad.GetBaseVertex(0);
         argsBuffer.SetData(args);
+        
+        grassMaterial.SetFloat(HalfQuadWidthId, quadWidth / 2f);
+
+        if (numberOfQuads == 1) return;
+
+        foreach (var material in materials)
+        {
+            material.SetFloat(HalfQuadWidthId, halfQuadWidth);
+        }
     }
 
     private void UpdateBounds()
     {
-        float quadResolution = resolution + quadWidth / 2f;
+        float quadResolution = resolution + halfQuadWidth;
         Vector3 center = transform.position;
         bounds = new Bounds(center, new Vector3(quadResolution, quadHeight * 2f, quadResolution));
     }
@@ -172,7 +182,7 @@ public class BillboardGras : MonoBehaviour
         if (numberOfQuadsCache != numberOfQuads)
         {
             numberOfQuadsCache = numberOfQuads;
-            rotationIncrement = 360f / numberOfQuads;
+            rotationIncrement = 360f / numberOfQuads / 2f;
             UpdateMaterialList();
             UpdateComputeBuffer();
         }
