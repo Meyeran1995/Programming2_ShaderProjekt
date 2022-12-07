@@ -3,7 +3,6 @@ Shader "Unlit/GrasUnlit"
     Properties
     {
         _MainTex ("Main texture", 2D) = "white" {}
-        _HeightMap ("Height Map", 2D) = "black" {}
         _Color ("Color", COLOR) = (1 , 1 , 1, 1)
     }
     SubShader
@@ -27,10 +26,7 @@ Shader "Unlit/GrasUnlit"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             
-            sampler2D _HeightMap;
-            
-            StructuredBuffer<float3> _Positions;
-
+            StructuredBuffer<float4> _Positions;
             float _Rotation;
             
             struct appdata
@@ -45,7 +41,7 @@ Shader "Unlit/GrasUnlit"
                 float4 vertex : SV_POSITION;
             };
 
-            float4 RotateAroundYInDegrees (float4 vertex, const float degrees)
+            float4 RotateAroundYInDegrees (const float4 vertex, const float degrees)
             {
                 const float angle = degrees * PI / 180.0;
 
@@ -62,8 +58,12 @@ Shader "Unlit/GrasUnlit"
                 v2f output;
                 output.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
+                const float4 buffered_pos = _Positions[instance_id];
+                
+                v.vertex.y *= buffered_pos.w;
+                
                 const float4 rotated_pos = RotateAroundYInDegrees(v.vertex, _Rotation);
-                const float3 world_pos = TransformObjectToWorld(rotated_pos) + _Positions[instance_id];
+                const float3 world_pos = TransformObjectToWorld(rotated_pos) + buffered_pos.xyz;
 
                 output.vertex = TransformWorldToHClip(world_pos);
                 return output;
