@@ -70,17 +70,6 @@ public class InspectorUpdateListener
         }
     }
     
-    public float CachedNoiseHeightStrength
-    {
-        set
-        {
-            if(FloatsAreEqual(noiseHeightStrength, value)) return;
-
-            noiseHeightStrength = value;
-            UpdateComputeBuffer();
-        }
-    }
-    
     public Mesh CachedQuad { get; private set; }
     public Bounds CachedBounds { get; private set; }
 
@@ -89,7 +78,6 @@ public class InspectorUpdateListener
     private Vector2 quadValues;
     private float density;
     private float displacement;
-    private float noiseHeightStrength;
     
     private float rotationIncrement;
     private int resolutionSquared;
@@ -98,7 +86,7 @@ public class InspectorUpdateListener
     private readonly BillboardGras gras;
 
     public InspectorUpdateListener(int resolution, int numberOfQuads, float quadWidth, float quadHeight, float density,
-        float displacement, float noiseHeightStrength, BillboardGras gras)
+        float displacement, BillboardGras gras)
     {
         this.gras = gras;
         this.resolution = resolution;
@@ -106,7 +94,6 @@ public class InspectorUpdateListener
         quadValues = new Vector2(quadWidth, quadHeight);
         this.density = density;
         this.displacement = displacement;
-        this.noiseHeightStrength = noiseHeightStrength;
         
         rotationIncrement = 360f / numberOfQuads / 2f;
     }
@@ -135,7 +122,6 @@ public class InspectorUpdateListener
         grasPositionCompute.SetBuffer(0, ShaderIDCache.PositionsId, gras.PositionsBuffer);
         
         grasPositionCompute.SetFloat(ShaderIDCache.HeightMapDisplacementStrengthId, displacement);
-        grasPositionCompute.SetFloat(ShaderIDCache.HeightNoiseScalingId, noiseHeightStrength);
         
         grasPositionCompute.Dispatch(0, groups, groups, 1);
         

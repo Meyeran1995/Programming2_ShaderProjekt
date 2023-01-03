@@ -6,6 +6,7 @@ public class BillboardGras : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private Color grasColor;
+    [SerializeField] private Color tipColor;
     [Space]
     [SerializeField, Range(0f, Max_resolution)] private int resolution;
     [SerializeField, Min(0f)] private float quadWidth, quadHeight;
@@ -15,7 +16,6 @@ public class BillboardGras : MonoBehaviour
     [SerializeField, Min(0f)] private float displacementStrength;
     [Space]
     [SerializeField] private Texture noiseMapHeight;
-    [SerializeField] private float noiseHeightStrength;
     
     [Header("References")]
     [SerializeField] private ComputeShader grasPositionCompute;
@@ -60,7 +60,7 @@ public class BillboardGras : MonoBehaviour
     private void Awake()
     {
         inspectorUpdater = new InspectorUpdateListener(resolution, numberOfQuads, quadWidth, quadHeight, density,
-            displacementStrength, noiseHeightStrength, this);
+            displacementStrength, this);
         
         grasPositionCompute.SetTexture(0, ShaderIDCache.HeightMapId, terrain.terrainData.heightmapTexture);
         grasPositionCompute.SetTexture(0, ShaderIDCache.NoiseMapHeightId, noiseMapHeight);
@@ -112,13 +112,22 @@ public class BillboardGras : MonoBehaviour
         inspectorUpdater.CachedQuadHeight = quadHeight;
         inspectorUpdater.CachedQuadWidth = quadWidth;
 
-        inspectorUpdater.CachedNoiseHeightStrength = noiseHeightStrength;
-        
-        if (grassMaterial.color == grasColor) return;
-        
-        foreach (var material in materials)
+        if (grassMaterial.color != grasColor)
         {
-            material.color = grasColor;
+            foreach (var material in materials)
+            {
+                material.color = grasColor;
+            }
+            
+            return;
+        }
+        
+        if (grassMaterial.GetColor(ShaderIDCache.TipColorId) != tipColor)
+        {
+            foreach (var material in materials)
+            {
+                material.SetColor(ShaderIDCache.TipColorId, tipColor);
+            }
         }
     }
 
