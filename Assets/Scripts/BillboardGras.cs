@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -8,11 +9,12 @@ public class BillboardGras : MonoBehaviour
     [SerializeField] private Color grasColor;
     [SerializeField] private Color tipColor;
     [Space]
-    [SerializeField, Range(0f, Max_resolution)] private int resolution;
-    [SerializeField, Min(0f)] private float quadWidth, quadHeight;
+    [SerializeField, Min(0f)] private float quadWidth;
+    [SerializeField, Min(0f)] private float quadHeight;
+    [Space]
     [SerializeField, Min(0f)] private float density;
     [SerializeField, Range(1, 6)] private int numberOfQuads;
-    [Space]
+    [Header("Noise")]
     [SerializeField] private Texture noiseMapHeight;
     [Header("References")]
     [SerializeField] private ComputeShader grasPositionCompute;
@@ -23,9 +25,7 @@ public class BillboardGras : MonoBehaviour
     public ComputeBuffer PositionsBuffer { get; private set; }
     public ComputeBuffer ArgsBuffer { get; private set; }
 
-    public Material[] GrasMaterial => materials.ToArray();
-
-    private const int Max_resolution = 1000;
+    public Material[] GrasMaterials => materials.ToArray();
 
     private InspectorUpdateListener inspectorUpdater;
     private List<Material> materials;
@@ -53,15 +53,29 @@ public class BillboardGras : MonoBehaviour
             materials.RemoveAt(i);
         }
     }
+
+    public void DispatchBuffer(int resolutionSquared, int groups)
+    {
+        //A compute buffer contains arbitrary untyped data. We have to specify the exact size of each element in bytes, via a second argument.
+        //We need to store 3D position vectors, which consist of three float numbers, so the element size is three times the size of a float (four bytes).
+        PositionsBuffer = new ComputeBuffer(resolutionSquared, 4 * sizeof(float));
+        grasPositionCompute.SetBuffer(0, ShaderIDCache.PositionsId, PositionsBuffer);
+        
+        grasPositionCompute.Dispatch(0, groups, groups, 1);
+    }
     
     private void Awake()
     {
-        inspectorUpdater = new InspectorUpdateListener(resolution, numberOfQuads, quadWidth, quadHeight, density,this);
+        var terrainData = terrain.terrainData;
+        var terrainHeight = Mathf.CeilToInt(terrainData.size.y);
+        inspectorUpdater = new InspectorUpdateListener(Mathf.CeilToInt(terrainData.size.x), terrainHeight,
+            numberOfQuads, quadWidth, quadHeight, density,this);
         
-        grasPositionCompute.SetTexture(0, ShaderIDCache.HeightMapId, terrain.terrainData.heightmapTexture);
+        grasPositionCompute.SetTexture(0, ShaderIDCache.HeightMapId, terrainData.heightmapTexture);
         grasPositionCompute.SetTexture(0, ShaderIDCache.NoiseMapHeightId, noiseMapHeight);
         
-        grasPositionCompute.SetInt(ShaderIDCache.MaxTerrainHeightId, Mathf.CeilToInt(terrain.terrainData.size.y * 2f));
+        grasPositionCompute.SetInt(ShaderIDCache.MaxTerrainHeightId, terrainHeight * 2);
+        grasPositionCompute.SetFloat(ShaderIDCache.HalfBoundsHeightId, terrainHeight / 2f);
 
         materials = new List<Material>(numberOfQuads) { grassMaterial };
 
@@ -81,9 +95,6 @@ public class BillboardGras : MonoBehaviour
 
     private void OnEnable()
     {
-        //A compute buffer contains arbitrary untyped data. We have to specify the exact size of each element in bytes, via a second argument.
-        //We need to store 3D position vectors, which consist of three float numbers, so the element size is three times the size of a float (four bytes).
-        PositionsBuffer = new ComputeBuffer(Max_resolution * Max_resolution, 4 * sizeof(float));
         ArgsBuffer = new ComputeBuffer(1, 5 * sizeof(uint), ComputeBufferType.IndirectArguments);
         
         inspectorUpdater.InitializeWithCaches();
@@ -103,7 +114,6 @@ public class BillboardGras : MonoBehaviour
         if(!EditorApplication.isPlaying || ArgsBuffer == null || inspectorUpdater == null) return;
 
         inspectorUpdater.CachedDensity = density;
-        inspectorUpdater.CachedResolution = resolution;
         inspectorUpdater.CachedNumberOfQuads = numberOfQuads;
 
         inspectorUpdater.CachedQuadHeight = quadHeight;
@@ -131,7 +141,9 @@ public class BillboardGras : MonoBehaviour
     private void OnDrawGizmos()
     {
         if(!EditorApplication.isPlaying) return;
+
+        var bounds = inspectorUpdater.CachedBounds;
         
-        Gizmos.DrawWireCube(transform.position, inspectorUpdater.CachedBounds.size);
+        Gizmos.DrawWireCube(bounds.center, bounds.size);
     }
 }

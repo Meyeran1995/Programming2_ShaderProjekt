@@ -2,16 +2,6 @@ using UnityEngine;
 
 public class InspectorUpdateListener
 {
-    public int CachedResolution
-    {
-        set
-        {
-            if(resolution == value) return;
-            resolution = value;
-            UpdateResolution();
-        }
-    }
-    
     public int CachedNumberOfQuads
     {
         set
@@ -20,7 +10,7 @@ public class InspectorUpdateListener
             numberOfQuads = value;
             rotationIncrement = 360f / numberOfQuads / 2f;
             gras.UpdateMaterialList();
-            UpdateComputeBuffer();
+            UpdateMaterials();
         }
     }
     
@@ -55,12 +45,15 @@ public class InspectorUpdateListener
             if(FloatsAreEqual(density, value)) return;
 
             density = value;
-            UpdateComputeBuffer();
+            UpdateResolution();
         }
     }
 
     public Mesh CachedQuad { get; private set; }
     public Bounds CachedBounds { get; private set; }
+
+    private readonly int terrainResolutionX;
+    private readonly int terrainResolutionY;
 
     private int resolution;
     private int numberOfQuads;
@@ -73,11 +66,12 @@ public class InspectorUpdateListener
 
     private readonly BillboardGras gras;
 
-    public InspectorUpdateListener(int resolution, int numberOfQuads, float quadWidth, float quadHeight, 
+    public InspectorUpdateListener(int terrainResolutionX, int terrainResolutionY, int numberOfQuads, float quadWidth, float quadHeight, 
         float density, BillboardGras gras)
     {
         this.gras = gras;
-        this.resolution = resolution;
+        this.terrainResolutionX = terrainResolutionX;
+        this.terrainResolutionY = terrainResolutionY;
         this.numberOfQuads = numberOfQuads;
         quadValues = new Vector2(quadWidth, quadHeight);
         this.density = density;
@@ -88,10 +82,12 @@ public class InspectorUpdateListener
     public void InitializeWithCaches()
     {
         UpdateResolution();
+        UpdateBounds();
     }
 
     private void UpdateResolution()
     {
+        resolution = Mathf.CeilToInt(terrainResolutionX * density);
         resolutionSquared = resolution * resolution;
         // Numthreads(8,8,1) -> 8x8 group size, so we need dimensions equal to resolution divided by group size
         groups = Mathf.CeilToInt(resolution / 8f);
@@ -106,19 +102,9 @@ public class InspectorUpdateListener
         
         grasPositionCompute.SetInt(ShaderIDCache.ResolutionId, resolution);
         grasPositionCompute.SetFloat(ShaderIDCache.DensityId, density);
-        grasPositionCompute.SetBuffer(0, ShaderIDCache.PositionsId, gras.PositionsBuffer);
         
-        grasPositionCompute.Dispatch(0, groups, groups, 1);
-        
-        UpdateBounds();
-
-        float angle = 0f;
-        
-        foreach (var material in gras.GrasMaterial)
-        {
-           UpdateMaterial(material, angle);
-           angle += rotationIncrement;
-        }
+        gras.DispatchBuffer(resolutionSquared, groups);
+        UpdateMaterials();
     }
 
     private void UpdateMesh()
@@ -138,8 +124,25 @@ public class InspectorUpdateListener
 
     private void UpdateBounds()
     {
-        float quadResolution = resolution / density + quadValues.x;
-        CachedBounds = new Bounds(gras.transform.position, new Vector3(quadResolution, quadValues.y * 2f, quadResolution));
+        float sizeX = terrainResolutionX + quadValues.x;
+        float sizeY = terrainResolutionY + quadValues.y;
+        
+        Vector3 position = gras.transform.position;
+        Vector3 center = new Vector3(position.x, position.y + sizeY / 2f, position.z);
+
+        CachedBounds = new Bounds(center,
+            new Vector3(sizeX, sizeY, sizeX));
+    }
+    
+    private void UpdateMaterials()
+    {
+        float angle = 0f;
+        
+        foreach (var material in gras.GrasMaterials)
+        {
+            UpdateMaterial(material, angle);
+            angle += rotationIncrement;
+        }
     }
     
     private void UpdateMaterial(Material material, float angle)
