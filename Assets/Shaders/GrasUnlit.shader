@@ -104,7 +104,7 @@ Shader "Unlit/GrasUnlit"
                 float height_factor = InverseLerp(_MinGrasHeight, 1 + _MinGrasHeight, i.height);
                 height_factor = lerp(0.0f, height_factor, i.uv.y);
 
-                return lerp(1.0f, _TipColor, height_factor) * _Color * texture_color;
+                return lerp(_Color, _TipColor, height_factor) * texture_color;
             }
             ENDHLSL
         }
