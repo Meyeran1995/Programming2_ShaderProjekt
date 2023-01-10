@@ -102,6 +102,12 @@ public class BillboardGras : MonoBehaviour
 
     private void Update()
     {
+        if (transform.hasChanged)
+        {
+            transform.hasChanged = false;
+            inspectorUpdater.UpdateBounds();
+        }
+        
         foreach (var material in materials)
         {
             Graphics.DrawMeshInstancedIndirect(inspectorUpdater.CachedQuad, 0, material,

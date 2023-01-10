@@ -387,12 +387,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grasColor: {r: 1, g: 1, b: 1, a: 1}
   tipColor: {r: 1, g: 0.4957481, b: 0, a: 1}
-  resolution: 1000
   quadWidth: 1
   quadHeight: 2
   density: 1
   numberOfQuads: 4
-  displacementStrength: 1000
   noiseMapHeight: {fileID: 2800000, guid: bd8afeed6a59c62449eb2c08716e44d1, type: 3}
   grasPositionCompute: {fileID: 7200000, guid: 6cec460d5c0701041adaa7f077f08f51, type: 3}
   grassMaterial: {fileID: 2100000, guid: 409c64e2652730d4f8abe6ae1da45d89, type: 2}
@@ -404,13 +402,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 709688938}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 500, y: 0, z: 500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_Father: {fileID: 1043932048}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1043932045
 GameObject:
@@ -486,7 +484,8 @@ Transform:
   m_LocalPosition: {x: -500, y: 0, z: -500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 709688940}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

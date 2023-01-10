@@ -85,6 +85,18 @@ public class InspectorUpdateListener
         UpdateBounds();
     }
 
+    public void UpdateBounds()
+    {
+        float sizeX = terrainResolutionX + quadValues.x;
+        float sizeY = terrainResolutionY + quadValues.y;
+        
+        Vector3 position = gras.transform.position;
+        Vector3 center = new Vector3(position.x, position.y + sizeY / 2f, position.z);
+
+        CachedBounds = new Bounds(center,
+            new Vector3(sizeX, sizeY, sizeX));
+    }
+    
     private void UpdateResolution()
     {
         resolution = Mathf.CeilToInt(terrainResolutionX * density);
@@ -122,18 +134,6 @@ public class InspectorUpdateListener
         gras.ArgsBuffer.SetData(args);
     }
 
-    private void UpdateBounds()
-    {
-        float sizeX = terrainResolutionX + quadValues.x;
-        float sizeY = terrainResolutionY + quadValues.y;
-        
-        Vector3 position = gras.transform.position;
-        Vector3 center = new Vector3(position.x, position.y + sizeY / 2f, position.z);
-
-        CachedBounds = new Bounds(center,
-            new Vector3(sizeX, sizeY, sizeX));
-    }
-    
     private void UpdateMaterials()
     {
         float angle = 0f;
