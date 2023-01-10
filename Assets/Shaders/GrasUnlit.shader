@@ -6,6 +6,7 @@ Shader "Unlit/GrasUnlit"
         _Color ("Color", COLOR) = (1 , 1 , 1, 1)
         _TipColor ("TipColor", COLOR) = (1 , 1 , 1, 1)
         _MinGrasHeight ("MinGrasHeight", float) = 0.5
+        _WindStrength ("WindStrength", float) = 0.5
     }
     SubShader
     {
@@ -23,6 +24,8 @@ Shader "Unlit/GrasUnlit"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
+            float _WindStrength;
+            
             half4 _Color;
             half4 _TipColor;
             float _MinGrasHeight;
@@ -73,12 +76,23 @@ Shader "Unlit/GrasUnlit"
                 v.vertex.y *= height;
                 
                 const float4 rotated_pos = RotateAroundYInDegrees(v.vertex, _Rotation);
-                const float3 world_pos = TransformObjectToWorld(rotated_pos) + buffered_pos.xyz;
+
+                float4 local_pos = rotated_pos;
+
+                const float wind_power = _WindStrength - (height - (1.0f + _MinGrasHeight));
+                const float cos_time = cos(_Time.y * wind_power);
+
+                const float trig_value = cos_time * cos_time;
+                
+                local_pos.x += v.uv.y * trig_value * height * 0.6f;
+                local_pos.z += v.uv.y * trig_value * height * 0.4f;
+                
+                const float3 world_pos = TransformObjectToWorld(local_pos) + buffered_pos.xyz;
 
                 output.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 output.vertex = TransformWorldToHClip(world_pos);
                 output.height = height;
-
+                
                 return output;
             }
 
