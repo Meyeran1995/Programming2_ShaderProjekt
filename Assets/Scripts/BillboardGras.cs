@@ -14,7 +14,6 @@ public class BillboardGras : MonoBehaviour
     [SerializeField, Range(1, 6)] private int numberOfQuads;
     [Space]
     [SerializeField] private Texture noiseMapHeight;
-    
     [Header("References")]
     [SerializeField] private ComputeShader grasPositionCompute;
     [SerializeField] private Material grassMaterial;
@@ -61,6 +60,8 @@ public class BillboardGras : MonoBehaviour
         
         grasPositionCompute.SetTexture(0, ShaderIDCache.HeightMapId, terrain.terrainData.heightmapTexture);
         grasPositionCompute.SetTexture(0, ShaderIDCache.NoiseMapHeightId, noiseMapHeight);
+        
+        grasPositionCompute.SetInt(ShaderIDCache.MaxTerrainHeightId, Mathf.CeilToInt(terrain.terrainData.size.y * 2f));
 
         materials = new List<Material>(numberOfQuads) { grassMaterial };
 
