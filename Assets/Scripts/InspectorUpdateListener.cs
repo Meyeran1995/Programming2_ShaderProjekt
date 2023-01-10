@@ -58,18 +58,7 @@ public class InspectorUpdateListener
             UpdateComputeBuffer();
         }
     }
-    
-    public float CachedDisplacement
-    {
-        set
-        {
-            if(FloatsAreEqual(displacement, value)) return;
 
-            displacement = value;
-            UpdateComputeBuffer();
-        }
-    }
-    
     public Mesh CachedQuad { get; private set; }
     public Bounds CachedBounds { get; private set; }
 
@@ -77,7 +66,6 @@ public class InspectorUpdateListener
     private int numberOfQuads;
     private Vector2 quadValues;
     private float density;
-    private float displacement;
     
     private float rotationIncrement;
     private int resolutionSquared;
@@ -85,15 +73,14 @@ public class InspectorUpdateListener
 
     private readonly BillboardGras gras;
 
-    public InspectorUpdateListener(int resolution, int numberOfQuads, float quadWidth, float quadHeight, float density,
-        float displacement, BillboardGras gras)
+    public InspectorUpdateListener(int resolution, int numberOfQuads, float quadWidth, float quadHeight, 
+        float density, BillboardGras gras)
     {
         this.gras = gras;
         this.resolution = resolution;
         this.numberOfQuads = numberOfQuads;
         quadValues = new Vector2(quadWidth, quadHeight);
         this.density = density;
-        this.displacement = displacement;
         
         rotationIncrement = 360f / numberOfQuads / 2f;
     }
@@ -120,8 +107,6 @@ public class InspectorUpdateListener
         grasPositionCompute.SetInt(ShaderIDCache.ResolutionId, resolution);
         grasPositionCompute.SetFloat(ShaderIDCache.DensityId, density);
         grasPositionCompute.SetBuffer(0, ShaderIDCache.PositionsId, gras.PositionsBuffer);
-        
-        grasPositionCompute.SetFloat(ShaderIDCache.HeightMapDisplacementStrengthId, displacement);
         
         grasPositionCompute.Dispatch(0, groups, groups, 1);
         

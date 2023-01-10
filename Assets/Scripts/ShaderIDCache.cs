@@ -8,7 +8,6 @@ public static class ShaderIDCache
     public static readonly int RotationId = Shader.PropertyToID("_Rotation");
     
     public static readonly int HeightMapId = Shader.PropertyToID("_HeightMap");
-    public static readonly int HeightMapDisplacementStrengthId = Shader.PropertyToID("_HeightMapDisplacementStrength");
     
     public static readonly int NoiseMapHeightId = Shader.PropertyToID("_NoiseMapHeight");
     public static readonly int TipColorId = Shader.PropertyToID("_TipColor");

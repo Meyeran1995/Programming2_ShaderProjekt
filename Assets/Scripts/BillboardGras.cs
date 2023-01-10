@@ -13,8 +13,6 @@ public class BillboardGras : MonoBehaviour
     [SerializeField, Min(0f)] private float density;
     [SerializeField, Range(1, 6)] private int numberOfQuads;
     [Space]
-    [SerializeField, Min(0f)] private float displacementStrength;
-    [Space]
     [SerializeField] private Texture noiseMapHeight;
     
     [Header("References")]
@@ -59,8 +57,7 @@ public class BillboardGras : MonoBehaviour
     
     private void Awake()
     {
-        inspectorUpdater = new InspectorUpdateListener(resolution, numberOfQuads, quadWidth, quadHeight, density,
-            displacementStrength, this);
+        inspectorUpdater = new InspectorUpdateListener(resolution, numberOfQuads, quadWidth, quadHeight, density,this);
         
         grasPositionCompute.SetTexture(0, ShaderIDCache.HeightMapId, terrain.terrainData.heightmapTexture);
         grasPositionCompute.SetTexture(0, ShaderIDCache.NoiseMapHeightId, noiseMapHeight);
@@ -107,7 +104,6 @@ public class BillboardGras : MonoBehaviour
         inspectorUpdater.CachedDensity = density;
         inspectorUpdater.CachedResolution = resolution;
         inspectorUpdater.CachedNumberOfQuads = numberOfQuads;
-        inspectorUpdater.CachedDisplacement = displacementStrength;
 
         inspectorUpdater.CachedQuadHeight = quadHeight;
         inspectorUpdater.CachedQuadWidth = quadWidth;
