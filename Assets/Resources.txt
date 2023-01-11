@@ -1,0 +1,13 @@
+Build
+https://drive.google.com/file/d/13nhKmzCKx0ppWU6FdPdAL-SOoibdmZ7p/view?usp=sharing
+
+Video "How Do Games Render So Much Grass?"
+https://www.youtube.com/watch?v=Y0Ko0kvwfgA&t=459s
+
+Git Repository zum Video
+https://github.com/GarrettGunnell/Grass/
+
+Weitere Referenzen
+https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass
+https://catlikecoding.com/unity/tutorials/basics/compute-shaders/
+https://docs.unity3d.com/Packages/com.unity.shadergraph@6.9/manual/Random-Range-Node.html
