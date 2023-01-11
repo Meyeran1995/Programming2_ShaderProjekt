@@ -57,6 +57,7 @@ public class BillboardGras : MonoBehaviour
 
     public void DispatchBuffer(int resolutionSquared, int groups)
     {
+        PositionsBuffer?.Release();
         //A compute buffer contains arbitrary untyped data. We have to specify the exact size of each element in bytes, via a second argument.
         //We need to store 3D position vectors, which consist of three float numbers, so the element size is three times the size of a float (four bytes).
         PositionsBuffer = new ComputeBuffer(resolutionSquared, 4 * sizeof(float));
