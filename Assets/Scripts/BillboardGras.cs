@@ -119,7 +119,9 @@ public class BillboardGras : MonoBehaviour
                 inspectorUpdater.CachedBounds, ArgsBuffer);
         }
     }
-
+    
+#if UNITY_EDITOR
+    
     private void OnValidate()
     {
         if(!EditorApplication.isPlaying || ArgsBuffer == null || inspectorUpdater == null) return;
@@ -158,4 +160,6 @@ public class BillboardGras : MonoBehaviour
         
         Gizmos.DrawWireCube(bounds.center, bounds.size);
     }
+    
+#endif
 }
