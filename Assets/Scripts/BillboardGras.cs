@@ -16,6 +16,7 @@ public class BillboardGras : MonoBehaviour
     [SerializeField, Range(1, 6)] private int numberOfQuads;
     [Header("Noise")]
     [SerializeField] private Texture noiseMapHeight;
+    [SerializeField, Min(0f)] private float positionalNoiseStrength;
     [Header("References")]
     [SerializeField] private ComputeShader grasPositionCompute;
     [SerializeField] private Material grassMaterial;
@@ -68,8 +69,11 @@ public class BillboardGras : MonoBehaviour
     {
         var terrainData = terrain.terrainData;
         var terrainHeight = Mathf.CeilToInt(terrainData.size.y);
-        inspectorUpdater = new InspectorUpdateListener(Mathf.CeilToInt(terrainData.size.x), terrainHeight,
-            numberOfQuads, quadWidth, quadHeight, density,this);
+        
+        inspectorUpdater = new InspectorUpdateListener(
+            Mathf.CeilToInt(terrainData.size.x), terrainHeight,
+            numberOfQuads, quadWidth, quadHeight, 
+            density,positionalNoiseStrength, this);
         
         grasPositionCompute.SetTexture(0, ShaderIDCache.HeightMapId, terrainData.heightmapTexture);
         grasPositionCompute.SetTexture(0, ShaderIDCache.NoiseMapHeightId, noiseMapHeight);
@@ -120,11 +124,12 @@ public class BillboardGras : MonoBehaviour
         if(!EditorApplication.isPlaying || ArgsBuffer == null || inspectorUpdater == null) return;
 
         inspectorUpdater.CachedDensity = density;
+        inspectorUpdater.CachedPositionalNoiseStrength = positionalNoiseStrength;
+        
         inspectorUpdater.CachedNumberOfQuads = numberOfQuads;
-
         inspectorUpdater.CachedQuadHeight = quadHeight;
         inspectorUpdater.CachedQuadWidth = quadWidth;
-
+        
         if (grassMaterial.color != grasColor)
         {
             foreach (var material in materials)

@@ -389,9 +389,10 @@ MonoBehaviour:
   tipColor: {r: 1, g: 0.4957481, b: 0, a: 1}
   quadWidth: 1
   quadHeight: 2
-  density: 1
+  density: 2
   numberOfQuads: 4
   noiseMapHeight: {fileID: 2800000, guid: bd8afeed6a59c62449eb2c08716e44d1, type: 3}
+  positionalNoiseStrength: 0.5
   grasPositionCompute: {fileID: 7200000, guid: 6cec460d5c0701041adaa7f077f08f51, type: 3}
   grassMaterial: {fileID: 2100000, guid: 409c64e2652730d4f8abe6ae1da45d89, type: 2}
   terrain: {fileID: 1043932047}

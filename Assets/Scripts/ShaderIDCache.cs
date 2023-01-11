@@ -11,6 +11,7 @@ public static class ShaderIDCache
     public static readonly int MaxTerrainHeightId = Shader.PropertyToID("_MaxTerrainHeight"); 
     public static readonly int HalfBoundsHeightId = Shader.PropertyToID("_HalfBoundsHeight");
         
+    public static readonly int PositionalNoiseStrengthId = Shader.PropertyToID("_PositionalNoiseStrength");
     public static readonly int NoiseMapHeightId = Shader.PropertyToID("_NoiseMapHeight");
     public static readonly int TipColorId = Shader.PropertyToID("_TipColor");
 }
