@@ -82,11 +82,17 @@ public class BillboardGras : MonoBehaviour
         grasPositionCompute.SetInt(ShaderIDCache.MaxTerrainHeightId, terrainHeight * 2);
         grasPositionCompute.SetFloat(ShaderIDCache.HalfBoundsHeightId, terrainHeight / 2f);
 
-        materials = new List<Material>(numberOfQuads) { grassMaterial };
+        materials = new List<Material>(numberOfQuads);
 
-        for (int i = 1; i < numberOfQuads; i++)
+        for (int i = 0; i < numberOfQuads; i++)
         {
-            materials.Add(new Material(grassMaterial));
+            var material = new Material(grassMaterial)
+            {
+                color = grasColor
+            };
+            material.SetColor(ShaderIDCache.TipColorId, tipColor);
+            
+            materials.Add(material);
         }
     }
     
