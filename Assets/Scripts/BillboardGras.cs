@@ -41,7 +41,7 @@ public class BillboardGras : MonoBehaviour
         {
             for (int i = numberOfQuads - materialCount; i > 0; i--)
             {
-                materials.Add(new Material(grassMaterial));
+                materials.Add(CreateMaterial());
             }
             return;
         }
@@ -86,13 +86,7 @@ public class BillboardGras : MonoBehaviour
 
         for (int i = 0; i < numberOfQuads; i++)
         {
-            var material = new Material(grassMaterial)
-            {
-                color = grasColor
-            };
-            material.SetColor(ShaderIDCache.TipColorId, tipColor);
-            
-            materials.Add(material);
+            materials.Add(CreateMaterial());
         }
     }
     
@@ -125,6 +119,16 @@ public class BillboardGras : MonoBehaviour
                 inspectorUpdater.CachedBounds, ArgsBuffer);
         }
     }
+
+    private Material CreateMaterial()
+    {
+        var material = new Material(grassMaterial)
+        {
+            color = grasColor
+        };
+        material.SetColor(ShaderIDCache.TipColorId, tipColor);
+        return material;
+    }
     
 #if UNITY_EDITOR
     
@@ -139,7 +143,8 @@ public class BillboardGras : MonoBehaviour
         inspectorUpdater.CachedQuadHeight = quadHeight;
         inspectorUpdater.CachedQuadWidth = quadWidth;
         
-        if (grassMaterial.color != grasColor)
+        
+        if (materials[0].color != grasColor)
         {
             foreach (var material in materials)
             {
@@ -149,7 +154,7 @@ public class BillboardGras : MonoBehaviour
             return;
         }
         
-        if (grassMaterial.GetColor(ShaderIDCache.TipColorId) != tipColor)
+        if (materials[0].GetColor(ShaderIDCache.TipColorId) != tipColor)
         {
             foreach (var material in materials)
             {
